@@ -34,7 +34,8 @@ export async function getStaticPaths(){
     const meetups = await meetupsCollection.find({},{_id:1}).toArray();
 
     return {
-        fallback:false,
+        // set to true to create new build for this static path every time when it is accessed 
+        fallback:true,
         paths:meetups.map(meetup => ({params:{meetupId:meetup._id.toString()}}))
         /*paths:[
             {
