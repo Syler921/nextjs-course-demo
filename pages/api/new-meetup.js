@@ -8,7 +8,10 @@ async function handler(req,res){
 
         //const { title, image, address, description } = data;
 
-        const client = await MongoClient.connect('mongodb://syler:159753258@cluster0-shard-00-00.okpks.mongodb.net:27017,cluster0-shard-00-01.okpks.mongodb.net:27017,cluster0-shard-00-02.okpks.mongodb.net:27017/meetups?ssl=true&replicaSet=atlas-ydi09o-shard-0&authSource=admin&retryWrites=true&w=majority')
+        const client = await MongoClient.connect('mongodb://syler:159753258@cluster0-shard-00-00.okpks.mongodb.net:27017,cluster0-shard-00-01.okpks.mongodb.net:27017,cluster0-shard-00-02.okpks.mongodb.net:27017/meetups?ssl=true&replicaSet=atlas-ydi09o-shard-0&authSource=admin&retryWrites=true&w=majority',{
+            useNewUrlParser: true,
+            useUnifiedTopology: true
+          })
         
         const db = client.db();
 
