@@ -1,27 +1,28 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient } from 'mongodb'
+// /api/new-meetup 
 
-// /api/new-meetup
-// POST /api/new-meetup
+async function handler(req,res){
 
-async function handler(req, res) {
-  if (req.method === 'POST') {
-    const data = req.body;
+    if ( req.method === "POST"){
+        const data = req.body;
 
-    const client = await MongoClient.connect(
-      'mongodb+srv://maximilian:TU6WdZF2EjFWsqUt@cluster0.ntrwp.mongodb.net/meetups?retryWrites=true&w=majority'
-    );
-    const db = client.db();
+        //const { title, image, address, description } = data;
 
-    const meetupsCollection = db.collection('meetups');
+        const client = await MongoClient.connect('mongodb://syler:159753258@cluster0-shard-00-00.okpks.mongodb.net:27017,cluster0-shard-00-01.okpks.mongodb.net:27017,cluster0-shard-00-02.okpks.mongodb.net:27017/meetups?ssl=true&replicaSet=atlas-ydi09o-shard-0&authSource=admin&retryWrites=true&w=majority')
+        
+        const db = client.db();
 
-    const result = await meetupsCollection.insertOne(data);
+        const meetupsCollection = db.collection('meetups');
 
-    console.log(result);
+        const result = await meetupsCollection.insertOne(data);
 
-    client.close();
+        console.log(result);
 
-    res.status(201).json({ message: 'Meetup inserted!' });
-  }
+        client.close();
+
+        res.status(201).json({message:"Meetup inserted !"})
+    }
+
 }
 
 export default handler;

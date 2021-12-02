@@ -1,75 +1,81 @@
-import { MongoClient, ObjectId } from 'mongodb';
-import { Fragment } from 'react';
-import Head from 'next/head';
+import {Fragment} from 'react'
+import { MongoClient, ObjectId} from 'mongodb'
+import MeetupDetail from '../../components/meetups/MeetupDetail'
+import Head from 'next/head'
 
-import MeetupDetail from '../../components/meetups/MeetupDetail';
-
-function MeetupDetails(props) {
-  return (
-    <Fragment>
-      <Head>
-        <title>{props.meetupData.title}</title>
-        <meta name='description' content={props.meetupData.description} />
-      </Head>
-      <MeetupDetail
-        image={props.meetupData.image}
-        title={props.meetupData.title}
-        address={props.meetupData.address}
-        description={props.meetupData.description}
-      />
-    </Fragment>
-  );
+function MeetupDetails (props) {
+    return (
+        <Fragment>
+            <Head>
+                <title>{props.meetupData.title}</title>
+                <meta 
+                    name="description" 
+                    content = {`Browse bycicles meet - ${props.meetupData.description}`}
+                />
+            </Head>
+            <MeetupDetail
+            image={props.meetupData.image}
+            title={props.meetupData.title}
+            address={props.meetupData.address}
+            description={props.meetupData.description}
+        />
+        </Fragment>
+    )
+    
 }
+export async function getStaticPaths(){
 
-export async function getStaticPaths() {
-  const client = await MongoClient.connect(
-    'mongodb+srv://maximilian:TU6WdZF2EjFWsqUt@cluster0.ntrwp.mongodb.net/meetups?retryWrites=true&w=majority'
-  );
-  const db = client.db();
+    const client = await MongoClient.connect('mongodb://syler:159753258@cluster0-shard-00-00.okpks.mongodb.net:27017,cluster0-shard-00-01.okpks.mongodb.net:27017,cluster0-shard-00-02.okpks.mongodb.net:27017/meetups?ssl=true&replicaSet=atlas-ydi09o-shard-0&authSource=admin&retryWrites=true&w=majority')
+        
+    const db = client.db();
 
-  const meetupsCollection = db.collection('meetups');
+    const meetupsCollection = db.collection('meetups');
 
-  const meetups = await meetupsCollection.find({}, { _id: 1 }).toArray();
+    const meetups = await meetupsCollection.find({},{_id:1}).toArray();
 
-  client.close();
-
-  return {
-    fallback: 'blocking',
-    paths: meetups.map((meetup) => ({
-      params: { meetupId: meetup._id.toString() },
-    })),
-  };
+    return {
+        fallback:false,
+        paths:meetups.map(meetup => ({params:{meetupId:meetup._id.toString()}}))
+        /*paths:[
+            {
+                params:{
+                    meetupId: 'm1'
+                }
+            },
+            {
+                params:{
+                    meetupId: 'm2'
+                }
+            }
+        ]*/
+    }
 }
+export async function getStaticProps(context){
+    //fetch data to render it 
+    const meetupId = context.params.meetupId;
 
-export async function getStaticProps(context) {
-  // fetch data for a single meetup
+    const client = await MongoClient.connect('mongodb://syler:159753258@cluster0-shard-00-00.okpks.mongodb.net:27017,cluster0-shard-00-01.okpks.mongodb.net:27017,cluster0-shard-00-02.okpks.mongodb.net:27017/meetups?ssl=true&replicaSet=atlas-ydi09o-shard-0&authSource=admin&retryWrites=true&w=majority')
+        
+    const db = client.db();
 
-  const meetupId = context.params.meetupId;
+    const meetupsCollection = db.collection('meetups');
 
-  const client = await MongoClient.connect(
-    'mongodb+srv://maximilian:TU6WdZF2EjFWsqUt@cluster0.ntrwp.mongodb.net/meetups?retryWrites=true&w=majority'
-  );
-  const db = client.db();
+    const selectedMeetup = await meetupsCollection.findOne({_id:ObjectId(meetupId)});
 
-  const meetupsCollection = db.collection('meetups');
 
-  const selectedMeetup = await meetupsCollection.findOne({
-    _id: ObjectId(meetupId),
-  });
+    client.close();
 
-  client.close();
-
-  return {
-    props: {
-      meetupData: {
-        id: selectedMeetup._id.toString(),
-        title: selectedMeetup.title,
-        address: selectedMeetup.address,
-        image: selectedMeetup.image,
-        description: selectedMeetup.description,
-      },
-    },
-  };
+    return {
+        props:{
+            meetupData:{
+                id: selectedMeetup._id.toString(),
+                title: selectedMeetup.title,
+                address: selectedMeetup.address,
+                image: selectedMeetup.image,
+                description: selectedMeetup.description,
+            }
+        }
+    }
 }
 
 export default MeetupDetails;
